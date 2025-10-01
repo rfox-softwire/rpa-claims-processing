@@ -6,19 +6,16 @@ const app = express();
 const PORT = process.env.PORT || 3002;
 const POLICIES_FILE = path.join(__dirname, 'policies.csv');
 
-// Middleware
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 
-// In-memory cache for policies
 let policiesCache = new Map();
 
-// Load policies from CSV file
 async function loadPolicies() {
     try {
         const data = await fs.readFile(POLICIES_FILE, 'utf8');
-        const lines = data.trim().split('\n').slice(1); // Skip header
+        const lines = data.trim().split('\n').slice(1);
         
         policiesCache.clear();
         
@@ -30,15 +27,11 @@ async function loadPolicies() {
                 remainingLimit: parseInt(totalLimit, 10) - parseInt(claimedAmount, 10)
             });
         });
-        
-        console.log(`Loaded ${policiesCache.size} policies into memory`);
     } catch (err) {
-        console.error('Error loading policies:', err);
         process.exit(1);
     }
 }
 
-// API endpoint to get policy information
 app.get('/api/policy/:policyId', (req, res) => {
     const policyId = req.params.policyId.toUpperCase();
     const policy = policiesCache.get(policyId);
@@ -61,12 +54,10 @@ app.get('/api/policy/:policyId', (req, res) => {
     });
 });
 
-// Serve the HTML form
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Start the server
 async function startServer() {
     await loadPolicies();
     
