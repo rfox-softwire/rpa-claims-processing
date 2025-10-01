@@ -7,37 +7,15 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const EMAIL_SERVICE_URL = process.env.EMAIL_SERVICE_URL || 'http://localhost:3001';
 
-// Middleware
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Serve static files with proper MIME types
-app.use((req, res, next) => {
-    if (req.url.endsWith('.css')) {
-        res.setHeader('Content-Type', 'text/css');
-    }
-    next();
-});
-
-// Serve the HTML form
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
-        if (err) {
-            console.error('Error sending file:', err);
-            res.status(500).send('Error loading the form');
-        }
-    });
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Handle form submission
 app.post('/submit-claim', async (req, res) => {
     const { policyNumber, description, claimAmount, claimDate } = req.body;
-    
-    // Basic validation
-    if (!policyNumber || !description || !claimAmount || !claimDate) {
-    }
-
-    console.log('New claim submitted:', { policyNumber, description, claimAmount, claimDate });
     
     try {
         const emailData = {
@@ -47,15 +25,12 @@ app.post('/submit-claim', async (req, res) => {
 
 Policy Number: ${policyNumber}
 Description: ${description}
-Claim Amount: $${claimAmount}
+Claim Amount: £${claimAmount}
 Claim Date: ${new Date(claimDate).toLocaleDateString()}
 
 This is an automated notification.`
         };
-
-        console.log('Sending to email system:', JSON.stringify(emailData, null, 2));
         
-        // Forward the claim to the email system
         const emailResponse = await axios.post(
             `${EMAIL_SERVICE_URL}/api/messages`,
             emailData,
@@ -63,14 +38,9 @@ This is an automated notification.`
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                timeout: 5000 // 5 second timeout
+                timeout: 5000
             }
         );
-        
-        console.log('Email system response:', {
-            status: emailResponse.status,
-            data: emailResponse.data
-        });
         
         res.status(200).json({ 
             success: true, 
@@ -79,9 +49,6 @@ This is an automated notification.`
             emailResponse: emailResponse.data
         });
     } catch (error) {
-        console.error('Error forwarding claim to email system:', error.message);
-        
-        // Still respond with success to the user even if email forwarding fails
         res.status(200).json({ 
             success: true, 
             message: 'Claim submitted successfully, but there was an issue sending the notification.',

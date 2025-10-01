@@ -4,80 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Insurance Claim Submission</title>
-    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container">
-        <h1>Insurance Claim Submission</h1>
-        <form id="claimForm" class="claim-form">
-            <div class="form-group">
-                <label for="policyNumber">Policy Number *</label>
-                <input type="text" id="policyNumber" name="policyNumber" required>
+<body class="bg-gray-50 min-h-screen p-4">
+    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8 my-8">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Insurance Claim Submission</h1>
+        <form id="claimForm" class="space-y-6">
+            <div class="space-y-2">
+                <label for="policyNumber" class="block text-sm font-medium text-gray-700">Policy Number <span class="text-red-500">*</span></label>
+                <input type="text" id="policyNumber" name="policyNumber" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </div>
             
-            <div class="form-group">
-                <label for="description">Description of Claim *</label>
-                <textarea id="description" name="description" rows="4" required></textarea>
+            <div class="space-y-2">
+                <label for="description" class="block text-sm font-medium text-gray-700">Description of Claim <span class="text-red-500">*</span></label>
+                <textarea id="description" name="description" rows="4" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
             </div>
             
-            <div class="form-group">
-                <label for="claimAmount">Claim Amount (£) *</label>
-                <input type="number" id="claimAmount" name="claimAmount" min="0" step="0.01" required>
+            <div class="space-y-2">
+                <label for="claimAmount" class="block text-sm font-medium text-gray-700">Claim Amount (£) <span class="text-red-500">*</span></label>
+                <input type="number" id="claimAmount" name="claimAmount" min="0" step="0.01" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </div>
             
-            <div class="form-group">
-                <label for="claimDate">Date of Claim *</label>
-                <input type="date" id="claimDate" name="claimDate" required>
+            <div class="space-y-2">
+                <label for="claimDate" class="block text-sm font-medium text-gray-700">Date of Claim <span class="text-red-500">*</span></label>
+                <input type="date" id="claimDate" name="claimDate" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </div>
             
-            <button type="submit" class="submit-btn">Submit Claim</button>
+            <button type="submit" 
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Submit Claim
+            </button>
         </form>
         
-        <div id="responseMessage" class="response-message"></div>
+        <div id="responseMessage" class="mt-6 p-4 rounded-md text-center hidden"></div>
     </div>
 
-    <script>
-        document.getElementById('claimForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = {
-                policyNumber: document.getElementById('policyNumber').value,
-                description: document.getElementById('description').value,
-                claimAmount: parseFloat(document.getElementById('claimAmount').value),
-                claimDate: document.getElementById('claimDate').value
-            };
-            
-            const responseMessage = document.getElementById('responseMessage');
-            
-            try {
-                const response = await fetch('/submit-claim', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    responseMessage.textContent = 'Claim submitted successfully!';
-                    responseMessage.className = 'response-message success';
-                    document.getElementById('claimForm').reset();
-                } else {
-                    throw new Error(data.error || 'Failed to submit claim');
-                }
-            } catch (error) {
-                responseMessage.textContent = `Error: ${error.message}`;
-                responseMessage.className = 'response-message error';
-            }
-            
-            // Clear message after 5 seconds
-            setTimeout(() => {
-                responseMessage.textContent = '';
-                responseMessage.className = 'response-message';
-            }, 5000);
-        });
-    </script>
+    <script src="/js/app.js"></script>
 </body>
 </html>
