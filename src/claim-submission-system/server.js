@@ -75,5 +75,5 @@ This is an automated notification.`
 });
 
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Claim submission system is running on http://localhost:${PORT}`);
 });

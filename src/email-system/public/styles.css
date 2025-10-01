@@ -1,0 +1,118 @@
+/* Custom styles for the email system */
+
+/* Smooth transitions for panel toggles */
+#emailPanel {
+    transition: all 0.3s ease-in-out;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Email list item hover effect */
+.email-item {
+    transition: background-color 0.2s ease;
+}
+
+.email-item:hover {
+    background-color: #f9fafb;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* Animation for new email notifications */
+@keyframes newEmailPulse {
+    0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+.new-email {
+    animation: newEmailPulse 2s infinite;
+    position: relative;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    #emailPanel {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        max-width: 100%;
+        z-index: 50;
+    }
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body, html {
+        background: white !important;
+        font-size: 12pt;
+    }
+    
+    #emailView {
+        padding: 0;
+        margin: 0;
+    }
+}
+
+/* Email content styling */
+.email-content {
+    line-height: 1.6;
+}
+
+.email-content p {
+    margin-bottom: 1em;
+}
+
+.email-content ul, .email-content ol {
+    margin-bottom: 1em;
+    padding-left: 1.5em;
+}
+
+/* Status indicators */
+.status-badge {
+    display: inline-block;
+    padding: 0.25em 0.5em;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-new {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.status-read {
+    background-color: #e5e7eb;
+    color: #4b5563;
+}
+
+.status-important {
+    background-color: #fee2e2;
+    color: #991b1b;
+}

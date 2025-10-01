@@ -3,222 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Simulation - Claims Management</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Email System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-gray-100">
-    <div class="container mx-auto px-4 py-8">
-        <header class="bg-blue-600 text-white p-4 rounded-t-lg shadow-md">
-            <h1 class="text-2xl font-bold">Claims Management System</h1>
-            <p class="text-blue-100">Simulated Email Interface</p>
-        </header>
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="w-64 bg-white border-r border-gray-200 flex flex-col">
+            <div class="p-4 border-b border-gray-200">
+                <h1 class="text-xl font-bold text-gray-800">Email System</h1>
+            </div>
+            <div class="p-4">
+                <button id="composeBtn" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors mb-6">
+                    Compose
+                </button>
+                <nav>
+                    <ul>
+                        <li class="mb-2">
+                            <a href="#" class="flex items-center p-2 text-blue-600 bg-blue-50 rounded-md">
+                                <span>Inbox</span>
+                                <span class="ml-auto bg-blue-600 text-white text-xs px-2 py-1 rounded-full">3</span>
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="flex items-center p-2 text-gray-600 hover:bg-gray-100 rounded-md">
+                                <span>Sent</span>
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="flex items-center p-2 text-gray-600 hover:bg-gray-100 rounded-md">
+                                <span>Drafts</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center p-2 text-gray-600 hover:bg-gray-100 rounded-md">
+                                <span>Trash</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
 
-        <div class="flex flex-col md:flex-row gap-6 mt-6">
-            <!-- Email List -->
-            <div class="w-full md:w-1/3 bg-white rounded-lg shadow-md overflow-hidden">
-                <div class="p-4 border-b border-gray-200 flex justify-between items-center">
-                    <h2 class="text-lg font-semibold">Inbox</h2>
-                    <button id="refreshBtn" class="text-blue-600 hover:text-blue-800">
-                        <i class="fas fa-sync-alt"></i> Refresh
-                    </button>
-                </div>
-                <div id="emailList" class="divide-y divide-gray-200">
-                    <!-- Emails will be inserted here -->
-                    <div class="p-4 text-center text-gray-500">
-                        Loading emails...
-                    </div>
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Search Bar -->
+            <div class="bg-white border-b border-gray-200 p-4">
+                <div class="relative">
+                    <input type="text" placeholder="Search emails..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
                 </div>
             </div>
 
-            <!-- Email Content -->
-            <div class="w-full md:w-2/3 bg-white rounded-lg shadow-md overflow-hidden">
-                <div id="emailContent" class="p-6">
-                    <div class="text-center py-12 text-gray-400">
-                        <i class="fas fa-inbox text-4xl mb-2"></i>
-                        <p>Select an email to view</p>
+            <!-- Email List -->
+            <div class="flex-1 overflow-y-auto">
+                <div class="divide-y divide-gray-200">
+                    <!-- Email Item 1 -->
+                    <div class="p-4 hover:bg-gray-50 cursor-pointer border-l-4 border-blue-500 bg-blue-50">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-medium text-gray-900">Claims Team</h3>
+                            <span class="text-xs text-gray-500">10:30 AM</span>
+                        </div>
+                        <p class="text-sm font-medium text-gray-900 mt-1">New Claim Submission #12345</p>
+                        <p class="text-sm text-gray-500 mt-1 truncate">A new claim has been submitted by John Doe. Policy #POL-2023-1001. Please review the attached documents...</p>
+                    </div>
+
+                    <!-- Email Item 2 -->
+                    <div class="p-4 hover:bg-gray-50 cursor-pointer">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-medium text-gray-900">System Notification</h3>
+                            <span class="text-xs text-gray-500">Yesterday</span>
+                        </div>
+                        <p class="text-sm font-medium text-gray-900 mt-1">Scheduled Maintenance</p>
+                        <p class="text-sm text-gray-500 mt-1 truncate">We will be performing scheduled maintenance on our systems this weekend...</p>
+                    </div>
+
+                    <!-- Email Item 3 -->
+                    <div class="p-4 hover:bg-gray-50 cursor-pointer">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-medium text-gray-900">HR Department</h3>
+                            <span class="text-xs text-gray-500">Monday</span>
+                        </div>
+                        <p class="text-sm font-medium text-gray-900 mt-1">Important: Policy Updates</p>
+                        <p class="text-sm text-gray-500 mt-1 truncate">Please review the updated company policies regarding claim processing...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email View/Compose Panel -->
+        <div class="w-2/5 bg-white border-l border-gray-200 flex flex-col hidden" id="emailPanel">
+            <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 id="emailPanelTitle" class="text-lg font-medium">New Message</h2>
+                <button id="closePanelBtn" class="text-gray-500 hover:text-gray-700">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-4" id="emailContent">
+                <!-- Email View -->
+                <div id="emailView" class="h-full">
+                    <div class="mb-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900" id="emailSubject">New Claim Submission #12345</h3>
+                                <div class="mt-1 text-sm text-gray-500">
+                                    <span id="emailFrom">From: claims@example.com</span>
+                                    <span class="mx-2">•</span>
+                                    <span id="emailDate">Today, 10:30 AM</span>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="text-gray-400 hover:text-gray-600">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                                    </svg>
+                                </button>
+                                <button class="text-gray-400 hover:text-gray-600">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="prose max-w-none" id="emailBody">
+                            <p>Hello Team,</p>
+                            <p>A new claim has been submitted with the following details:</p>
+                            <ul class="list-disc pl-5 mt-2 space-y-1">
+                                <li>Claim ID: #12345</li>
+                                <li>Policy Number: POL-123456</li>
+                                <li>Claimant: John Doe</li>
+                                <li>Claim Amount: £2,500.00</li>
+                                <li>Date of Incident: 2023-10-01</li>
+                            </ul>
+                            <p class="mt-4">Please review the attached documents and process the claim accordingly.</p>
+                            <p class="mt-4">Best regards,<br>Claims System</p>
+                        </div>
+                        <div class="mt-6 pt-6 border-t border-gray-200">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Attachments (2)</h4>
+                            <div class="flex space-x-4">
+                                <div class="flex items-center p-3 border border-gray-200 rounded-md">
+                                    <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">claim_form.pdf</p>
+                                        <p class="text-xs text-gray-500">245 KB</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center p-3 border border-gray-200 rounded-md">
+                                    <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">receipt.jpg</p>
+                                        <p class="text-xs text-gray-500">1.2 MB</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compose Form (initially hidden) -->
+                <div id="composeForm" class="hidden h-full flex flex-col">
+                    <div class="mb-4">
+                        <label for="to" class="block text-sm font-medium text-gray-700 mb-1">To</label>
+                        <input type="email" id="to" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                        <input type="text" id="subject" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="flex-1 mb-4">
+                        <textarea id="message" class="w-full h-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Write your message here..."></textarea>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <button type="button" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <svg class="-ml-0.5 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                                </svg>
+                                Attach
+                            </button>
+                        </div>
+                        <div class="space-x-2">
+                            <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Save Draft
+                            </button>
+                            <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Send
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        let currentEmail = null;
-
-        // Format date to a readable format
-        function formatDate(dateString) {
-            const options = { 
-                year: 'numeric', 
-                month: 'short', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            };
-            return new Date(dateString).toLocaleDateString('en-US', options);
-        }
-
-        // Render the email list
-        function renderEmailList(emails) {
-            const emailList = document.getElementById('emailList');
-            
-            if (emails.length === 0) {
-                emailList.innerHTML = `
-                    <div class="p-4 text-center text-gray-500">
-                        No emails found
-                    </div>
-                `;
-                return;
-            }
-
-            emailList.innerHTML = emails.map(email => `
-                <div class="p-4 hover:bg-gray-50 cursor-pointer ${!email.read ? 'bg-blue-50' : ''}" 
-                     data-id="${email.id}">
-                    <div class="flex justify-between items-start">
-                        <div class="font-medium ${!email.read ? 'text-blue-800' : 'text-gray-800'}">
-                            ${email.from}
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            ${formatDate(email.receivedAt)}
-                        </div>
-                    </div>
-                    <div class="font-semibold mt-1">${email.subject}</div>
-                    <div class="text-sm text-gray-600 truncate mt-1">
-                        ${email.body.length > 100 ? email.body.substring(0, 100) + '...' : email.body}
-                    </div>
-                </div>
-            `).join('');
-
-            // Add click event listeners to email items
-            document.querySelectorAll('#emailList > div').forEach(item => {
-                item.addEventListener('click', () => {
-                    const emailId = parseInt(item.getAttribute('data-id'));
-                    const email = emails.find(e => e.id === emailId);
-                    if (email) {
-                        showEmailContent(email);
-                        // Mark as read
-                        if (!email.read) {
-                            markAsRead(emailId);
-                        }
-                    }
-                });
-            });
-        }
-
-        // Show email content
-        function showEmailContent(email) {
-            currentEmail = email;
-            const emailContent = document.getElementById('emailContent');
-            
-            emailContent.innerHTML = `
-                <div class="mb-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-bold">${email.subject}</h2>
-                        <button id="deleteEmail" class="text-red-500 hover:text-red-700">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </div>
-                    <div class="flex items-center text-sm text-gray-600 mb-4">
-                        <span class="font-medium">From:</span>
-                        <span class="ml-2">${email.from}</span>
-                        <span class="mx-2">•</span>
-                        <span>${formatDate(email.receivedAt)}</span>
-                    </div>
-                    <div class="prose max-w-none mt-6">
-                        ${email.body.split('\n').map(paragraph => 
-                            `<p class="mb-4">${paragraph}</p>`
-                        ).join('')}
-                    </div>
-                </div>
-            `;
-
-            // Add event listener to delete button
-            document.getElementById('deleteEmail').addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (confirm('Are you sure you want to delete this email?')) {
-                    deleteEmail(email.id);
-                }
-            });
-        }
-
-        // Mark email as read
-        async function markAsRead(emailId) {
-            try {
-                const response = await fetch(`/api/emails/${emailId}/read`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-                
-                if (response.ok) {
-                    // Update the email in the list
-                    const email = emails.find(e => e.id === emailId);
-                    if (email) {
-                        email.read = true;
-                        renderEmailList(emails);
-                    }
-                }
-            } catch (error) {
-                console.error('Error marking email as read:', error);
-            }
-        }
-
-        // Delete email
-        async function deleteEmail(emailId) {
-            try {
-                const response = await fetch(`/api/emails/${emailId}`, {
-                    method: 'DELETE',
-                });
-                
-                if (response.status === 204) {
-                    // Remove from the list
-                    emails = emails.filter(e => e.id !== emailId);
-                    renderEmailList(emails);
-                    
-                    // Clear the content if the deleted email was being viewed
-                    if (currentEmail && currentEmail.id === emailId) {
-                        document.getElementById('emailContent').innerHTML = `
-                            <div class="text-center py-12 text-gray-400">
-                                <i class="fas fa-inbox text-4xl mb-2"></i>
-                                <p>Select an email to view</p>
-                            </div>
-                        `;
-                        currentEmail = null;
-                    }
-                }
-            } catch (error) {
-                console.error('Error deleting email:', error);
-                alert('Failed to delete email');
-            }
-        }
-
-        // Fetch emails from the server
-        async function fetchEmails() {
-            try {
-                const response = await fetch('/api/emails');
-                if (response.ok) {
-                    emails = await response.json();
-                    renderEmailList(emails);
-                }
-            } catch (error) {
-                console.error('Error fetching emails:', error);
-                document.getElementById('emailList').innerHTML = `
-                    <div class="p-4 text-center text-red-500">
-                        Error loading emails. Please try again later.
-                    </div>
-                `;
-            }
-        }
-
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', () => {
-            // Load emails
-            fetchEmails();
-
-            // Set up refresh button
-            document.getElementById('refreshBtn').addEventListener('click', fetchEmails);
-        });
-    </script>
+    <script src="js/app.js"></script>
 </body>
 </html>

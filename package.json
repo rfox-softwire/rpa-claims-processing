@@ -5,18 +5,21 @@
   "private": true,
   "workspaces": [
     "src/claim-submission-system",
-    "src/email-system"
+    "src/email-system",
+    "src/claim-management-system"
   ],
   "scripts": {
     "start:claim": "node src/claim-submission-system/server.js",
     "start:email": "node src/email-system/server.js",
     "start:policy": "node src/policy-administration-system/server.js",
+    "start:management": "node src/claim-management-system/server.js",
     "dev:claim": "nodemon src/claim-submission-system/server.js",
     "dev:email": "nodemon src/email-system/server.js",
     "dev:policy": "nodemon src/policy-administration-system/server.js",
+    "dev:management": "nodemon src/claim-management-system/server.js",
     "install:all": "npm install",
-    "start": "npm-run-all --parallel start:claim start:email start:policy",
-    "dev": "npm-run-all --parallel dev:claim dev:email dev:policy"
+    "start": "npm-run-all --parallel start:claim start:email start:policy start:management",
+    "dev": "npm-run-all --parallel dev:claim dev:email dev:policy dev:management"
   },
   "keywords": ["rpa", "claims", "processing", "automation"],
   "author": "",
