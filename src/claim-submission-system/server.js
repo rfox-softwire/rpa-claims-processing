@@ -35,38 +35,54 @@ app.post('/submit-claim', async (req, res) => {
     
     // Basic validation
     if (!policyNumber || !description || !claimAmount || !claimDate) {
-        return res.status(400).json({ error: 'All fields are required' });
     }
 
     console.log('New claim submitted:', { policyNumber, description, claimAmount, claimDate });
     
     try {
-        // Forward the claim to the email simulation system
-        const emailResponse = await axios.post(`${EMAIL_SERVICE_URL}/api/emails`, {
-            from: `claim-submission@example.com`,
-            subject: `New Claim Submitted - Policy #${policyNumber}`,
+        const emailData = {
+            from: 'claim-submission@example.com',
+            subject: `New Claim - Policy #${policyNumber}`,
             body: `A new claim has been submitted with the following details:
-                
+
 Policy Number: ${policyNumber}
 Description: ${description}
 Claim Amount: $${claimAmount}
 Claim Date: ${new Date(claimDate).toLocaleDateString()}
 
 This is an automated notification.`
+        };
+
+        console.log('Sending to email system:', JSON.stringify(emailData, null, 2));
+        
+        // Forward the claim to the email system
+        const emailResponse = await axios.post(
+            `${EMAIL_SERVICE_URL}/api/messages`,
+            emailData,
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                timeout: 5000 // 5 second timeout
+            }
+        );
+        
+        console.log('Email system response:', {
+            status: emailResponse.status,
+            data: emailResponse.data
         });
         
-        console.log('Claim forwarded to email system:', emailResponse.data);
-        
-        res.json({ 
+        res.status(200).json({ 
             success: true, 
-            message: 'Claim submitted successfully and notification sent!',
-            data: { policyNumber, description, claimAmount, claimDate }
+            message: 'Claim submitted successfully',
+            claim: { policyNumber, description, claimAmount, claimDate },
+            emailResponse: emailResponse.data
         });
     } catch (error) {
         console.error('Error forwarding claim to email system:', error.message);
         
         // Still respond with success to the user even if email forwarding fails
-        res.json({ 
+        res.status(200).json({ 
             success: true, 
             message: 'Claim submitted successfully, but there was an issue sending the notification.',
             data: { policyNumber, description, claimAmount, claimDate }

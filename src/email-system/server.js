@@ -1,72 +1,105 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const path = require('path');
+const cors = require('cors');
 
 const app = express();
-const PORT = process.env.EMAIL_PORT || 3001;
+const PORT = 3001;
 
-// In-memory storage for emails (in a real app, use a database)
-let emails = [];
+// In-memory storage for messages
+let messages = [];
 
 // Middleware
-app.use(bodyParser.json());
-app.use(express.static('public'));
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Serve the email client interface
+// Configure CORS
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}));
+
+// Handle preflight requests
+app.options('*', cors());
+
+// Serve the client interface
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// API endpoint to receive new claims (simulating email reception)
-app.post('/api/emails', (req, res) => {
-    const { from, subject, body } = req.body;
+// Add a test route to verify static file serving
+app.get('/test-js', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'js', 'app.js'));
+});
+
+// API endpoint to receive new messages from claim system
+app.post('/api/messages', (req, res) => {
+    console.log('=== NEW REQUEST ===');
+    console.log('Headers:', JSON.stringify(req.headers, null, 2));
+    console.log('Raw body:', req.body);
+    console.log('Parsed body:', JSON.stringify(req.body, null, 2));
     
-    if (!from || !subject || !body) {
-        return res.status(400).json({ error: 'Missing required fields' });
+    try {
+        const { from = 'claim-system@example.com', subject = 'New Claim Notification', body } = req.body;
+        
+        console.log('Extracted values:', { from, subject, body });
+        
+        if (!body) {
+            console.error('Error: Message body is required');
+            return res.status(400).json({ 
+                success: false,
+                error: 'Message body is required',
+                receivedBody: req.body
+            });
+        }
+
+        const newMessage = {
+            id: Date.now(),
+            from,
+            subject,
+            body: typeof body === 'string' ? body : JSON.stringify(body, null, 2),
+            receivedAt: new Date().toISOString(),
+            read: false
+        };
+
+        console.log('New message created:', JSON.stringify(newMessage, null, 2));
+        messages.unshift(newMessage);
+        
+        console.log(`Total messages in memory: ${messages.length}`);
+        
+        res.status(201).json({
+            success: true,
+            message: 'Message received successfully',
+            data: newMessage
+        });
+    } catch (error) {
+        console.error('Error processing message:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Internal server error',
+            details: error.message
+        });
     }
-
-    const newEmail = {
-        id: Date.now(),
-        from,
-        subject,
-        body,
-        receivedAt: new Date().toISOString(),
-        read: false
-    };
-
-    emails.unshift(newEmail); // Add to beginning of array (newest first)
-    
-    console.log('New email received:', newEmail);
-    res.status(201).json(newEmail);
 });
 
-// API endpoint to get all emails
-app.get('/api/emails', (req, res) => {
-    res.json(emails);
+// API endpoint to get all messages
+app.get('/api/messages', (req, res) => {
+    res.json(messages);
 });
 
-// API endpoint to mark email as read
-app.patch('/api/emails/:id/read', (req, res) => {
-    const email = emails.find(e => e.id === parseInt(req.params.id));
-    if (!email) {
-        return res.status(404).json({ error: 'Email not found' });
+// API endpoint to mark message as read
+app.patch('/api/messages/:id/read', (req, res) => {
+    const message = messages.find(m => m.id === parseInt(req.params.id));
+    if (!message) {
+        return res.status(404).json({ error: 'Message not found' });
     }
     
-    email.read = true;
-    res.json(email);
+    message.read = true;
+    res.json(message);
 });
 
-// API endpoint to delete an email
-app.delete('/api/emails/:id', (req, res) => {
-    const index = emails.findIndex(e => e.id === parseInt(req.params.id));
-    if (index === -1) {
-        return res.status(404).json({ error: 'Email not found' });
-    }
-    
-    emails.splice(index, 1);
-    res.status(204).send();
-});
-
+// Start the server
 app.listen(PORT, () => {
-    console.log(`Email simulation server running on http://localhost:${PORT}`);
+    console.log(`Email system running on http://localhost:${PORT}`);
 });

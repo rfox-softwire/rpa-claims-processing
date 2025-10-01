@@ -1,156 +1,246 @@
+// Helper function to escape HTML
+function escapeHtml(unsafe) {
+    if (typeof unsafe !== 'string') return unsafe;
+    return unsafe
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // DOM Elements
-    const composeBtn = document.getElementById('composeBtn');
-    const closePanelBtn = document.getElementById('closePanelBtn');
-    const emailPanel = document.getElementById('emailPanel');
-    const emailView = document.getElementById('emailView');
-    const composeForm = document.getElementById('composeForm');
-    const emailItems = document.querySelectorAll('.email-item');
-    const emailPanelTitle = document.getElementById('emailPanelTitle');
+    const messageList = document.getElementById('message-list');
+    const messageView = document.getElementById('message-view');
+    const messageSubject = document.getElementById('message-subject');
+    const messageFrom = document.getElementById('message-from');
+    const messageDateEl = document.getElementById('message-date');
+    const messageBody = document.getElementById('message-body');
+    const backToListBtn = document.getElementById('back-to-list');
+    const refreshBtn = document.getElementById('refresh-btn');
+    const unreadCount = document.getElementById('unread-count');
     
-    // Sample email data
-    const sampleEmails = [
-        {
-            id: 1,
-            from: 'Claims Team <claims@example.com>',
-            to: 'me@example.com',
-            subject: 'New Claim Submission #12345',
-            date: 'Today, 10:30 AM',
-            body: `Hello Team,\n\nA new claim has been submitted with the following details:\n\n- Claim ID: #12345\n- Policy Number: POL-123456\n- Claimant: John Doe\n- Claim Amount: £2,500.00\n- Date of Incident: 2023-10-01\n\nPlease review the attached documents and process the claim accordingly.\n\nBest regards,\nClaims System`,
-            attachments: [
-                { name: 'claim_form.pdf', size: '245 KB', type: 'pdf' },
-                { name: 'receipt.jpg', size: '1.2 MB', type: 'image' }
-            ],
-            read: false,
-            important: true
-        }
-        // Add more sample emails as needed
-    ];
-
+    let lastMessageId = 0;
+    let messages = [];
+    
     // Event Listeners
-    composeBtn.addEventListener('click', showComposeForm);
-    closePanelBtn.addEventListener('click', hidePanel);
+    backToListBtn.addEventListener('click', showMessageList);
+    refreshBtn.addEventListener('click', loadMessages);
 
-    // Add click event to email items
-    emailItems.forEach(item => {
-        item.addEventListener('click', function() {
-            const emailId = parseInt(this.dataset.emailId);
-            const email = sampleEmails.find(e => e.id === emailId) || sampleEmails[0];
-            showEmail(email);
-        });
+    // Set up event delegation for message list items
+    messageList.addEventListener('click', (e) => {
+        const messageItem = e.target.closest('.message-item');
+        if (messageItem) {
+            e.preventDefault();
+            const messageId = parseInt(messageItem.getAttribute('data-message-id'));
+            viewMessage(messageId);
+        }
     });
 
-    // Show compose form
-    function showComposeForm() {
-        emailPanelTitle.textContent = 'New Message';
-        emailView.classList.add('hidden');
-        composeForm.classList.remove('hidden');
-        emailPanel.classList.remove('hidden');
-    }
+    // Load messages when the page loads
+    loadMessages();
+    
+    setInterval(loadMessages, 10000);
 
-    // Show email content
-    function showEmail(email) {
-        // Update email view with email data
-        document.getElementById('emailFrom').textContent = `From: ${email.from}`;
-        document.getElementById('emailSubject').textContent = email.subject;
-        document.getElementById('emailDate').textContent = email.date;
-        document.getElementById('emailBody').innerHTML = email.body.replace(/\n/g, '<br>');
-        
-        // Update attachments
-        const attachmentsContainer = document.querySelector('#emailView .mt-6.pt-6.border-t');
-        if (attachmentsContainer) {
-            const attachmentsList = attachmentsContainer.querySelector('.flex.space-x-4');
-            if (attachmentsList) {
-                attachmentsList.innerHTML = email.attachments.map(attachment => `
-                    <div class="flex items-center p-3 border border-gray-200 rounded-md">
-                        <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            ${getAttachmentIcon(attachment.type)}
-                        </svg>
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-900">${attachment.name}</p>
-                            <p class="text-xs text-gray-500">${attachment.size}</p>
-                        </div>
-                    </div>
-                `).join('');
+    // Function to load messages from the server
+    async function loadMessages() {
+        try {
+            console.log('Loading messages...');
+            const response = await fetch('/api/messages');
+            if (!response.ok) throw new Error('Failed to fetch messages');
+            const data = await response.json();
+            console.log('Messages received:', data);
+            
+            // Always update the messages and render the list
+            const previousMessageCount = messages.length;
+            messages = data;
+            renderMessageList();
+            updateUnreadCount();
+            
+            // Check for new messages and show notifications
+            if (data.length > 0) {
+                lastMessageId = Math.max(lastMessageId, ...data.map(msg => msg.id));
+                
+                // Only show notifications for new messages
+                if (data.length > previousMessageCount) {
+                    const newMessages = data.slice(0, data.length - previousMessageCount);
+                    newMessages.forEach(msg => {
+                        if (!msg.read) {
+                            showNewMessageNotification(msg);
+                        }
+                    });
+                }
             }
-        }
-
-        // Update UI
-        emailPanelTitle.textContent = email.subject;
-        emailView.classList.remove('hidden');
-        composeForm.classList.add('hidden');
-        emailPanel.classList.remove('hidden');
-        
-        // Mark as read
-        email.read = true;
-        updateEmailItemUI(email.id);
-    }
-
-    // Get appropriate icon for attachment type
-    function getAttachmentIcon(type) {
-        switch(type) {
-            case 'pdf':
-                return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>';
-            case 'image':
-                return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>';
-            default:
-                return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>';
+        } catch (error) {
+            console.error('Error loading messages:', error);
+            showError('Failed to load messages');
         }
     }
 
-    // Update email item UI (read/unread, important, etc.)
-    function updateEmailItemUI(emailId) {
-        const emailItem = document.querySelector(`[data-email-id="${emailId}"]`);
-        if (!emailItem) return;
+    // Function to render the message list
+    function renderMessageList() {
+        console.log('Rendering message list. Total messages:', messages ? messages.length : 0);
         
-        const email = sampleEmails.find(e => e.id === emailId);
-        if (!email) return;
-        
-        // Update read status
-        if (email.read) {
-            emailItem.classList.remove('font-semibold');
-            emailItem.classList.add('font-normal');
-        } else {
-            emailItem.classList.remove('font-normal');
-            emailItem.classList.add('font-semibold');
+        if (!messages || messages.length === 0) {
+            messageList.innerHTML = `
+                <div class="text-center p-5 text-muted">
+                    <i class="bi bi-envelope display-4 d-block mb-3"></i>
+                    <p>No messages to display</p>
+                </div>
+            `;
+            return;
         }
+
+        let html = '<div class="list-group list-group-flush">';
         
-        // Update important status
-        if (email.important) {
-            emailItem.classList.add('border-l-4', 'border-yellow-400');
-        } else {
-            emailItem.classList.remove('border-l-4', 'border-yellow-400');
+        // Sort messages by date (newest first)
+        const sortedMessages = [...messages].sort((a, b) => 
+            new Date(b.receivedAt) - new Date(a.receivedAt)
+        );
+        
+        sortedMessages.forEach(message => {
+            try {
+                const messageDate = new Date(message.receivedAt);
+                const formattedDate = messageDate.toLocaleString();
+                const isUnread = !message.read;
+                const bodyText = typeof message.body === 'string' ? message.body : JSON.stringify(message.body);
+                const previewText = bodyText.length > 100 ? bodyText.substring(0, 100) + '...' : bodyText;
+                
+                html += `
+                    <div class="list-group-item list-group-item-action message-item ${isUnread ? 'unread' : ''}" 
+                          data-message-id="${message.id}">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">${escapeHtml(message.from || 'No sender')}</h6>
+                            <small>${formattedDate}</small>
+                        </div>
+                        <h5 class="mb-1">${escapeHtml(message.subject || 'No subject')}</h5>
+                        <p class="mb-1 text-truncate">${escapeHtml(previewText)}</p>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error rendering message:', error, message);
+            }
+        });
+        
+        html += '</div>';
+        messageList.innerHTML = html;
+        
+        // Add event listeners to the new message items
+        document.querySelectorAll('.message-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const messageId = parseInt(item.getAttribute('data-message-id'));
+                viewMessage(messageId);
+            });
+        });
+    }
+
+    // Function to view a specific message
+    async function viewMessage(messageId) {
+        try {
+            // Mark as read
+            const response = await fetch(`/api/messages/${messageId}/read`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) throw new Error('Failed to mark message as read');
+            
+            // Refresh messages to update read status
+            await loadMessages();
+            
+            // Find and display the message
+            const message = messages.find(m => m.id === messageId);
+            if (message) {
+                showMessageView(message);
+            }
+        } catch (error) {
+            console.error('Error viewing message:', error);
+            showError('Failed to load message');
         }
     }
 
-    // Hide the email panel
-    function hidePanel() {
-        emailPanel.classList.add('hidden');
+    // Function to show the message view
+    function showMessageView(message) {
+        if (!message) {
+            console.error('No message provided to showMessageView');
+            return;
+        }
+
+        try {
+            const messageDate = new Date(message.receivedAt);
+            const formattedDate = messageDate.toLocaleString();
+            
+            if (messageSubject) messageSubject.textContent = message.subject || 'No subject';
+            if (messageFrom) messageFrom.textContent = `From: ${message.from || 'Unknown sender'}`;
+            if (messageDateEl) messageDateEl.textContent = formattedDate;
+            if (messageBody) messageBody.innerHTML = (message.body || 'No content').replace(/\n/g, '<br>');
+            
+            if (messageList) messageList.classList.add('d-none');
+            if (messageView) {
+                messageView.classList.remove('d-none');
+                messageView.classList.add('d-flex');
+            }
+        } catch (error) {
+            console.error('Error in showMessageView:', error);
+            throw error; // Re-throw to be caught by the caller
+        }
     }
 
-    // Initialize the UI with the first email
-    if (sampleEmails.length > 0) {
-        showEmail(sampleEmails[0]);
+    // Function to show the message list
+    function showMessageList() {
+        messageList.classList.remove('d-none');
+        messageView.classList.add('d-none');
+        messageView.classList.remove('d-flex');
     }
 
-    // Simulate new email notification
-    setTimeout(() => {
-        const newEmailNotification = document.createElement('div');
-        newEmailNotification.className = 'fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-md shadow-lg flex items-center new-email';
-        newEmailNotification.innerHTML = `
-            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-            </svg>
-            New email received
+    // Function to update the unread message count
+    function updateUnreadCount() {
+        if (!messages) return;
+        const unread = messages.filter(message => !message.read).length;
+        unreadCount.textContent = unread;
+        document.title = unread > 0 
+            ? `(${unread}) Claim Messages - RPA Claims Processing` 
+            : 'Claim Messages - RPA Claims Processing';
+    }
+
+    // Function to show a new message notification
+    function showNewMessageNotification(message) {
+        // Simple notification - could be enhanced with a toast library
+        const notification = document.createElement('div');
+        notification.className = 'alert alert-info alert-dismissible fade show m-3';
+        notification.role = 'alert';
+        notification.innerHTML = `
+            <strong>New Message:</strong> ${message.subject}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         `;
-        document.body.appendChild(newEmailNotification);
         
-        // Remove notification after 5 seconds
+        // Add to the top of the page
+        document.body.prepend(notification);
+        
+        // Auto-dismiss after 5 seconds
         setTimeout(() => {
-            newEmailNotification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-            setTimeout(() => {
-                newEmailNotification.remove();
-            }, 500);
+            notification.remove();
         }, 5000);
-    }, 3000);
-});
+    }
+
+    // Function to show error messages
+    function showError(message) {
+        console.error(message);
+        // Simple error display
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-danger m-3';
+        alert.textContent = message;
+        
+        // Add to the top of the message list
+        messageList.prepend(alert);
+        
+        // Remove after 5 seconds
+        setTimeout(() => {
+            alert.remove();
+        }, 5000);
+    }
+}); 
