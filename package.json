@@ -10,11 +10,13 @@
   "scripts": {
     "start:claim": "node src/claim-submission-system/server.js",
     "start:email": "node src/email-system/server.js",
+    "start:policy": "node src/policy-administration-system/server.js",
     "dev:claim": "nodemon src/claim-submission-system/server.js",
     "dev:email": "nodemon src/email-system/server.js",
+    "dev:policy": "nodemon src/policy-administration-system/server.js",
     "install:all": "npm install",
-    "start": "npm-run-all --parallel start:claim start:email",
-    "dev": "npm-run-all --parallel dev:claim dev:email"
+    "start": "npm-run-all --parallel start:claim start:email start:policy",
+    "dev": "npm-run-all --parallel dev:claim dev:email dev:policy"
   },
   "keywords": ["rpa", "claims", "processing", "automation"],
   "author": "",

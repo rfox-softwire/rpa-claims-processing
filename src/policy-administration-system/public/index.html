@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy Administration System</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .policy-info {
+            transition: all 0.3s ease;
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+        }
+        .policy-info.visible {
+            opacity: 1;
+            height: auto;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            border-radius: 0.5rem;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        .loading.visible {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="bg-blue-600 text-white p-6">
+            <h1 class="text-2xl font-bold">Policy Administration System</h1>
+            <p class="text-blue-100">Look up policy information</p>
+        </div>
+        
+        <div class="p-6">
+            <form id="policyForm" class="space-y-4">
+                <div>
+                    <label for="policyId" class="block text-sm font-medium text-gray-700 mb-1">
+                        Policy ID
+                    </label>
+                    <div class="flex rounded-md shadow-sm">
+                        <input
+                            type="text"
+                            id="policyId"
+                            name="policyId"
+                            required
+                            placeholder="Enter Policy ID (e.g., POL-123456)"
+                            class="flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                            autocomplete="off"
+                            autocapitalize="characters"
+                        >
+                        <button
+                            type="submit"
+                            class="ml-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                            Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <div id="loading" class="loading">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
+                <p class="mt-2 text-gray-600">Searching for policy...</p>
+            </div>
+
+            <div id="policyInfo" class="policy-info bg-gray-50">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Policy Details</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Policy ID:</span>
+                        <span id="policyIdDisplay" class="font-medium"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Total Policy Limit:</span>
+                        <span id="totalLimit" class="font-mono"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Total Claimed Amount:</span>
+                        <span id="claimedAmount" class="font-mono"></span>
+                    </div>
+                    <div class="flex justify-between border-t border-gray-200 pt-3 mt-3">
+                        <span class="text-gray-800 font-medium">Remaining Limit:</span>
+                        <span id="remainingLimit" class="font-mono font-bold"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="errorMessage" class="mt-4 p-3 bg-red-50 text-red-700 rounded-md hidden">
+                <p id="errorText"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('policyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const policyId = document.getElementById('policyId').value.trim().toUpperCase();
+            const policyInfo = document.getElementById('policyInfo');
+            const loading = document.getElementById('loading');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Reset UI
+            policyInfo.classList.remove('visible');
+            errorMessage.classList.add('hidden');
+            loading.classList.add('visible');
+            
+            try {
+                const response = await fetch(`/api/policy/${encodeURIComponent(policyId)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update UI with policy data
+                    document.getElementById('policyIdDisplay').textContent = data.data.policyId;
+                    document.getElementById('totalLimit').textContent = formatCurrency(data.data.totalPolicyLimit);
+                    document.getElementById('claimedAmount').textContent = formatCurrency(data.data.totalClaimedAmount);
+                    document.getElementById('remainingLimit').textContent = formatCurrency(data.data.remainingPolicyLimit);
+                    
+                    // Show the policy info with animation
+                    policyInfo.classList.add('visible');
+                } else {
+                    showError(data.message || 'Policy not found');
+                }
+            } catch (error) {
+                console.error('Error fetching policy:', error);
+                showError('An error occurred while fetching policy information');
+            } finally {
+                loading.classList.remove('visible');
+            }
+        });
+        
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-GB', {
+                style: 'currency',
+                currency: 'GBP',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+        
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            
+            errorText.textContent = message;
+            errorMessage.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

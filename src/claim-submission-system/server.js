@@ -9,11 +9,24 @@ const EMAIL_SERVICE_URL = process.env.EMAIL_SERVICE_URL || 'http://localhost:300
 
 // Middleware
 app.use(bodyParser.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve static files with proper MIME types
+app.use((req, res, next) => {
+    if (req.url.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css');
+    }
+    next();
+});
 
 // Serve the HTML form
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
+        if (err) {
+            console.error('Error sending file:', err);
+            res.status(500).send('Error loading the form');
+        }
+    });
 });
 
 // Handle form submission
