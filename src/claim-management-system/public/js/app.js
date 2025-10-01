@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeNewClaimModal = document.getElementById('closeNewClaimModal');
     const newClaimForm = document.getElementById('newClaimForm');
     const cancelNewClaim = document.getElementById('cancelNewClaim');
-
+    const detailContent = document.getElementById('claimDetailContent');
     const policyNumberInput = document.getElementById('policyNumber');
     const descriptionInput = document.getElementById('description');
     const claimDateInput = document.getElementById('claimDate');

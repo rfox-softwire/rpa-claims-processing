@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const messageItem = e.target.closest('.message-item');
         if (messageItem) {
             e.preventDefault();
-            const messageId = parseInt(messageItem.getAttribute('data-message-id'));
+            const messageId = parseInt(messageItem.id.replace('_', ''));
             viewMessage(messageId);
         }
     });
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 html += `
                     <div class="message-item p-4 hover:bg-gray-50 cursor-pointer ${isUnread ? 'bg-blue-50' : 'bg-white'}" 
-                          data-message-id="${message.id}">
+                          id="_${message.id}">
                         <div class="flex justify-between w-full">
                             <h6 class="text-sm font-medium text-gray-900 mb-1">${escapeHtml(message.from || 'No sender')}</h6>
                             <span class="text-xs text-gray-500">${formattedDate}</span>
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.message-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
-                const messageId = parseInt(item.getAttribute('data-message-id'));
+                const messageId = parseInt(item.id.replace('_', ''));
                 if (!isNaN(messageId)) {
                     viewMessage(messageId);
                 }
