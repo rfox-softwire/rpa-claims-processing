@@ -1,48 +1,38 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // DOM Elements
     const newClaimBtn = document.getElementById('newClaimBtn');
     const newClaimModal = document.getElementById('newClaimModal');
+    const detailModal = document.getElementById('claimDetailModal');
     const closeNewClaimModal = document.getElementById('closeNewClaimModal');
     const newClaimForm = document.getElementById('newClaimForm');
     const cancelNewClaim = document.getElementById('cancelNewClaim');
-    
-    // Form fields
+
     const policyNumberInput = document.getElementById('policyNumber');
     const descriptionInput = document.getElementById('description');
     const claimDateInput = document.getElementById('claimDate');
     const claimAmountInput = document.getElementById('claimAmount');
 
-    // Event Listeners
-    if (newClaimBtn) newClaimBtn.addEventListener('click', showClaimForm);
-    if (closeNewClaimModal) closeNewClaimModal.addEventListener('click', () => newClaimModal.classList.add('hidden'));
-    if (cancelNewClaim) cancelNewClaim.addEventListener('click', () => newClaimModal.classList.add('hidden'));
-    if (newClaimForm) newClaimForm.addEventListener('submit', handleFormSubmit);
-    
-    // Close modal when clicking outside
-    const detailModal = document.getElementById('claimDetailModal');
-    if (detailModal) {
-        detailModal.addEventListener('click', (e) => {
-            if (e.target === detailModal) {
-                detailModal.classList.add('hidden');
-            }
-        });
-    }
+    newClaimBtn.addEventListener('click', showClaimForm);
+    closeNewClaimModal.addEventListener('click', () => newClaimModal.classList.add('hidden'));
+    cancelNewClaim.addEventListener('click', () => newClaimModal.classList.add('hidden'));
+    newClaimForm.addEventListener('submit', handleFormSubmit);
 
-    // Show claim form modal
+    window.addEventListener('click', (e) => {
+        if (detailModal && e.target === detailModal) {
+            detailModal.classList.add('hidden');
+        }
+        if (newClaimModal && e.target === newClaimModal) {
+            newClaimModal.classList.add('hidden');
+        }
+    });
+
     function showClaimForm() {
         if (newClaimModal) newClaimModal.classList.remove('hidden');
     }
 
-    // Show claim details in the modal
     function showClaimDetails(claim) {
-        const detailModal = document.getElementById('claimDetailModal');
-        const detailContent = document.getElementById('claimDetailContent');
-        
         if (!detailModal || !detailContent) return;
         
-        // Format date for display
         const formattedDate = claim.date ? new Date(claim.date).toLocaleDateString() : 'N/A';
-        
         detailContent.innerHTML = `
             <div class="space-y-4">
                 <div>
@@ -55,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                             <div class="sm:col-span-1">
                                 <dt class="text-sm font-medium text-gray-500">Claim Amount</dt>
-                                <dd class="mt-1 text-sm text-gray-900">$${claim.amount ? claim.amount.toFixed(2) : '0.00'}</dd>
+                                <dd class="mt-1 text-sm text-gray-900">£${claim.amount ? claim.amount.toFixed(0) : '0'}</dd>
                             </div>
                             <div class="sm:col-span-1">
                                 <dt class="text-sm font-medium text-gray-500">Date of Claim</dt>
@@ -99,52 +89,30 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         
-        // Add event listeners to buttons
         const closeButton = detailContent.querySelector('#closeDetailModal');
         const acceptButton = detailContent.querySelector('#acceptClaimBtn');
         const rejectButton = detailContent.querySelector('#rejectClaimBtn');
         
-        if (closeButton) {
-            closeButton.addEventListener('click', () => {
-                detailModal.classList.add('hidden');
-            });
-        }
+        closeButton.addEventListener('click', () => {
+            detailModal.classList.add('hidden');
+        });
         
-        if (acceptButton) {
-            acceptButton.addEventListener('click', () => {
-                if (confirm('Are you sure you want to accept this claim?')) {
-                    // Update claim status to accepted
-                    updateClaimStatus(claim.id, 'accepted');
-                    detailModal.classList.add('hidden');
-                }
-            });
-        }
+        acceptButton.addEventListener('click', () => {
+            updateClaimStatus(claim.id, 'accepted');
+            detailModal.classList.add('hidden');
+        });
         
-        if (rejectButton) {
-            rejectButton.addEventListener('click', () => {
-                if (confirm('Are you sure you want to reject this claim?')) {
-                    // Update claim status to rejected
-                    updateClaimStatus(claim.id, 'rejected');
-                    detailModal.classList.add('hidden');
-                }
-            });
-        }
+        rejectButton.addEventListener('click', () => {
+            updateClaimStatus(claim.id, 'rejected');
+            detailModal.classList.add('hidden');
+        });
         
-        // Show the modal
         detailModal.classList.remove('hidden');
         
-        // Function to update claim status
-        function updateClaimStatus(claimId, status) {
-            // In a real app, you would make an API call to update the claim status
-            console.log(`Updating claim ${claimId} status to:`, status);
-            
-            // Update the status in the UI
+        function updateClaimStatus(claimId, status) {            
             const statusElement = document.querySelector(`tr[data-claim-id="${claimId}"] .status-badge`);
             if (statusElement) {
-                // Remove all status classes
                 statusElement.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full ';
-                
-                // Add appropriate status class
                 if (status === 'accepted') {
                     statusElement.classList.add('bg-green-100', 'text-green-800');
                     statusElement.textContent = 'Approved';
@@ -155,19 +123,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     statusElement.classList.add('bg-yellow-100', 'text-yellow-800');
                     statusElement.textContent = 'Pending';
                 }
-                
-                // Show success message
-                alert(`Claim ${status} successfully!`);
             }
         }
     }
 
-    // Add a new claim row to the table
     function addClaimToTable(claim) {
         const tbody = document.getElementById('claimsTableBody');
         if (!tbody) return;
 
-        // Remove the loading message if it exists
         const loadingRow = tbody.querySelector('tr td[colspan="6"]');
         if (loadingRow) {
             tbody.innerHTML = '';
@@ -175,13 +138,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const row = document.createElement('tr');
         row.className = 'hover:bg-gray-50';
-        
-        // Store the claim data as a data attribute
         row.setAttribute('data-claim-id', claim.id);
-        
-        // Format date for display
-        const formattedDate = claim.date ? new Date(claim.date).toLocaleDateString() : 'N/A';
-        
+        const formattedDate = claim.date ? new Date(claim.date).toLocaleDateString() : 'N/A'; 
         row.innerHTML = `
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 ${claim.policyNumber || 'N/A'}
@@ -205,7 +163,6 @@ document.addEventListener('DOMContentLoaded', function() {
             </td>
         `;
         
-        // Add click handler for the view button
         const viewButton = row.querySelector('.view-claim');
         if (viewButton) {
             viewButton.addEventListener('click', (e) => {
@@ -217,13 +174,11 @@ document.addEventListener('DOMContentLoaded', function() {
         tbody.prepend(row);
     }
 
-    // Handle form submission
     function handleFormSubmit(e) {
         e.preventDefault();
-        
-        // Get form values
+
         const claimData = {
-            id: 'claim-' + Date.now(), // Generate a unique ID
+            id: 'claim-' + Date.now(),
             policyNumber: policyNumberInput ? policyNumberInput.value.trim() : '',
             description: descriptionInput ? descriptionInput.value.trim() : '',
             date: claimDateInput ? claimDateInput.value : '',
@@ -232,30 +187,13 @@ document.addEventListener('DOMContentLoaded', function() {
             submittedAt: new Date().toISOString()
         };
 
-        // Basic validation
         if (!claimData.policyNumber || !claimData.description || !claimData.date || isNaN(claimData.amount) || claimData.amount <= 0) {
             alert('Please fill in all fields with valid values.');
             return;
         }
-
-        // In a real app, you would send this data to your server here
-        console.log('Submitting claim:', claimData);
         
-        // Add the new claim to the table
-        addClaimToTable(claimData);
-        
-        // Show success message
-        alert('Claim submitted successfully!');
-        
-        // Reset form and close modal
-        if (newClaimForm) newClaimForm.reset();
-        if (newClaimModal) newClaimModal.classList.add('hidden');
+        addClaimToTable(claimData);        
+        newClaimForm.reset();
+        newClaimModal.classList.add('hidden');
     }
-
-    // Close modals when clicking outside
-    window.addEventListener('click', (e) => {
-        if (e.target === newClaimForm) {
-            newClaimForm.classList.add('hidden');
-        }
-    });
 });

@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Claim Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css">
 </head>
 <body class="bg-gray-100">
     <div class="min-h-screen">
-        <!-- Header -->
         <header class="bg-white shadow">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                 <div class="flex justify-between items-center">
@@ -21,7 +19,7 @@
             </div>
         </header>
 
-            <!-- Claims Table -->
+        <main>
             <div class="bg-white shadow overflow-hidden sm:rounded-lg">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -47,7 +45,6 @@
                             </tr>
                         </thead>
                         <tbody id="claimsTableBody" class="bg-white divide-y divide-gray-200">
-                            <!-- Claims will be inserted here by JavaScript -->
                             <tr>
                                 <td colspan="6" class="px-6 py-4 text-center text-gray-500">Loading claims...</td>
                             </tr>
@@ -58,7 +55,6 @@
         </main>
     </div>
 
-    <!-- Claim Detail Modal -->
     <div id="claimDetailModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
         <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
             <div class="flex justify-between items-center mb-4">
@@ -70,12 +66,11 @@
                 </button>
             </div>
             <div id="claimDetailContent">
-                <!-- Claim details will be inserted here by JavaScript -->
+
             </div>
         </div>
     </div>
 
-    <!-- New Claim Modal -->
     <div id="newClaimModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
         <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
             <div class="flex justify-between items-center mb-4">
