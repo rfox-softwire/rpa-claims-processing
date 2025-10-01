@@ -1,77 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Claim Messages - RPA Claims Processing</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8f9fa; }
-        .message-item { cursor: pointer; }
-        .message-item.unread { background-color: #f1f8ff; }
-        .message-item:hover { background-color: #f8f9fa; }
-    </style>
+    <link href="/css/styles.css" rel="stylesheet">
 </head>
-<body>
-    <div class="container-fluid p-0 vh-100">
-        <div class="row g-0 h-100">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 bg-dark text-white p-3">
-                <h4 class="mb-4">Claim Messages</h4>
-                <div class="d-grid gap-2">
-                    <button class="btn btn-primary" id="refresh-btn">
-                        <i class="bi bi-arrow-clockwise me-2"></i>Refresh
-                    </button>
+<body class="bg-gray-100">
+    <div class="min-h-screen flex flex-col md:flex-row">
+        <div class="w-full md:w-64 bg-gray-800 text-white p-4 flex-shrink-0">
+            <h4 class="text-xl font-semibold mb-6">Claim Messages</h4>
+            <div class="space-y-2">
+                <button class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors" id="refresh-btn">
+                    Refresh
+                </button>
+            </div>
+            <div class="mt-6">
+                <div class="text-xs text-gray-400 uppercase tracking-wider font-medium mb-2">UNREAD MESSAGES</div>
+                <div class="space-y-1">
+                    <a href="#" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-700 text-gray-200 hover:text-white transition-colors" data-folder="inbox">
+                        Inbox
+                        <span class="bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded-full" id="unread-count">0</span>
+                    </a>
                 </div>
-                <div class="mt-4">
-                    <div class="text-muted small mb-2">UNREAD MESSAGES</div>
-                    <div class="list-group list-group-flush">
-                        <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-0" data-folder="inbox">
-                            <i class="bi bi-inbox me-2"></i>Inbox
-                            <span class="badge bg-primary rounded-pill float-end" id="unread-count">0</span>
-                        </a>
-                    </div>
+            </div>
+        </div>
+        <div class="flex-1 flex flex-col h-screen overflow-hidden bg-white">
+            <div class="border-b border-gray-200 bg-white p-4">
+                <h4 class="text-lg font-semibold">Inbox</h4>
+            </div>
+            <div class="flex-1 overflow-auto bg-white" id="message-list">
+                <div class="text-center p-8">
+                    <p class="text-gray-600">No messages to display</p>
                 </div>
             </div>
 
-            <!-- Main Content -->
-            <div class="col-md-9 col-lg-10 p-0 d-flex flex-column" style="height: 100vh;">
-                <!-- Message List -->
-                <div class="border-bottom p-3">
-                    <h4 class="mb-0">Inbox</h4>
+            <div class="hidden flex-1 flex flex-col bg-white" id="message-view">
+                <div class="border-b border-gray-200 p-3 flex justify-between items-center bg-gray-50">
+                    <button class="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-100 transition-colors" id="back-to-list">
+                        Back to Inbox
+                    </button>
                 </div>
-                <div class="flex-grow-1 overflow-auto" id="message-list">
-                    <div class="text-center p-5 text-muted">
-                        <i class="bi bi-envelope display-4 d-block mb-3"></i>
-                        <p>No messages to display</p>
-                    </div>
-                </div>
-
-                <!-- Simplified Message View (hidden by default) -->
-                <div class="d-none flex-grow-1 d-flex flex-column" id="message-view">
-                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
-                        <button class="btn btn-sm btn-outline-secondary" id="back-to-list">
-                            <i class="bi bi-arrow-left me-1"></i> Back to Inbox
-                        </button>
-                    </div>
-                    <div class="p-4">
-                        <div class="mb-3">
-                            <h4 id="message-subject" class="mb-2">Loading...</h4>
-                            <div class="d-flex justify-content-between text-muted small mb-3">
-                                <span id="message-from">From: Loading...</span>
-                                <span id="message-date">Just now</span>
-                            </div>
+                <div class="p-6">
+                    <div class="mb-4">
+                        <h4 id="message-subject" class="text-xl font-semibold text-gray-900 mb-2">Loading...</h4>
+                        <div class="flex justify-between text-sm text-gray-500">
+                            <span id="message-from">From: Loading...</span>
+                            <span id="message-date" class="text-gray-400">Just now</span>
                         </div>
-                        <div class="border-top pt-3">
-                            <div id="message-body" class="py-3">Loading message content...</div>
-                        </div>
+                    </div>
+                    <div class="border-t border-gray-200 pt-4">
+                        <div id="message-body" class="prose max-w-none text-gray-700">Loading message content...</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <script src="/js/app.js"></script>
 </body>
 </html>

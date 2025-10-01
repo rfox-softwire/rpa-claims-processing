@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Policy-specific styles */
+.policy-info {
+    transition: all 0.3s ease;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+}
+
+.policy-info.visible {
+    opacity: 1;
+    max-height: 1000px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    border-radius: 0.5rem;
+}
+
+.loading {
+    display: none;
+    text-align: center;
+    margin: 1rem 0;
+}
+
+.loading.visible {
+    display: block;
+}

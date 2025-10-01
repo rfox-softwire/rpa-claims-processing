@@ -9,6 +9,10 @@
     "src/claim-management-system"
   ],
   "scripts": {
+    "build:email-css": "npx tailwindcss -i ./src/email-system/src/input.css -o ./src/email-system/public/css/styles.css --minify",
+    "build:management-css": "npx tailwindcss -i ./src/claim-management-system/src/input.css -o ./src/claim-management-system/public/css/styles.css --minify",
+    "build:submission-css": "npx tailwindcss -i ./src/claim-submission-system/src/input.css -o ./src/claim-submission-system/public/css/styles.css --minify",
+    "build:policy-css": "npx tailwindcss -i ./src/policy-administration-system/src/input.css -o ./src/policy-administration-system/public/css/styles.css --minify",
     "start:claim": "node src/claim-submission-system/server.js",
     "start:email": "node src/email-system/server.js",
     "start:policy": "node src/policy-administration-system/server.js",
@@ -33,6 +37,9 @@
     "npm-run-all": "^4.1.5"
   },
   "devDependencies": {
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.5",
     "@playwright/test": "^1.55.1",
     "@types/node": "^24.6.1"
   }
