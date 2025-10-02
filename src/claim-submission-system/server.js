@@ -22,12 +22,12 @@ app.post('/submit-claim', async (req, res) => {
             from: 'claim-submission@example.com',
             subject: `New Claim - Policy #${policyNumber}`,
             body: `A new claim has been submitted with the following details:
-
-Policy Number: ${policyNumber}
-Description: ${description}
-Claim Amount: £${claimAmount}
-Claim Date: ${new Date(claimDate).toLocaleDateString()}
-
+\n
+Policy Number: ${policyNumber} \n
+Description: ${description} \n
+Claim Amount: £${claimAmount} \n
+Claim Date: ${new Date(claimDate).toLocaleDateString()} \n
+\n
 This is an automated notification.`
         };
         

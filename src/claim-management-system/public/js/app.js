@@ -1,4 +1,58 @@
+// Status enum and mapping
+const ClaimStatus = {
+    PENDING: 'pending',
+    ACCEPTED: 'accepted',
+    REJECTED: 'rejected'
+};
+
+const StatusConfig = {
+    [ClaimStatus.PENDING]: {
+        text: 'Pending',
+        class: 'bg-yellow-100 text-yellow-800'
+    },
+    [ClaimStatus.ACCEPTED]: {
+        text: 'Approved',
+        class: 'bg-green-100 text-green-800'
+    },
+    [ClaimStatus.REJECTED]: {
+        text: 'Rejected',
+        class: 'bg-red-100 text-red-800'
+    }
+};
+
+const API_BASE_URL = '/api';
+
 document.addEventListener('DOMContentLoaded', function() {
+    loadClaims();
+    
+    async function loadClaims() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/claims`);
+            if (!response.ok) throw new Error('Failed to load claims');
+            const claims = await response.json();
+            
+            const tbody = document.getElementById('claimsTableBody');
+            if (tbody) {
+                tbody.innerHTML = '';
+                
+                if (claims.length === 0) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                            No claims found. Add your first claim to get started.
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                    return;
+                }
+                
+                claims.forEach(claim => addClaimToTable(claim));
+            }
+        } catch (error) {
+            console.error('Error loading claims:', error);
+            alert('Failed to load claims. Please try again later.');
+        }
+    }
     const newClaimBtn = document.getElementById('newClaimBtn');
     const newClaimModal = document.getElementById('newClaimModal');
     const detailModal = document.getElementById('claimDetailModal');
@@ -109,20 +163,28 @@ document.addEventListener('DOMContentLoaded', function() {
         
         detailModal.classList.remove('hidden');
         
-        function updateClaimStatus(claimId, status) {            
-            const statusElement = document.querySelector(`tr[data-claim-id="${claimId}"] .status-badge`);
-            if (statusElement) {
-                statusElement.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full ';
-                if (status === 'accepted') {
-                    statusElement.classList.add('bg-green-100', 'text-green-800');
-                    statusElement.textContent = 'Approved';
-                } else if (status === 'rejected') {
-                    statusElement.classList.add('bg-red-100', 'text-red-800');
-                    statusElement.textContent = 'Rejected';
-                } else {
-                    statusElement.classList.add('bg-yellow-100', 'text-yellow-800');
-                    statusElement.textContent = 'Pending';
+        async function updateClaimStatus(claimId, status) {            
+            try {
+                const response = await fetch(`${API_BASE_URL}/claims/${claimId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status })
+                });
+                
+                if (!response.ok) throw new Error('Failed to update claim status');
+                
+                const statusElement = document.querySelector(`tr[data-claim-id="${claimId}"] .status-badge`);
+                if (statusElement) {
+                    statusElement.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full ';
+                    const statusInfo = StatusConfig[status] || StatusConfig[ClaimStatus.PENDING];
+                    statusElement.textContent = statusInfo.text;
+                    statusElement.className = `px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusInfo.class}`;
                 }
+            } catch (error) {
+                console.error('Error updating claim status:', error);
+                alert('Failed to update claim status. Please try again.');
             }
         }
     }
@@ -131,37 +193,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const tbody = document.getElementById('claimsTableBody');
         if (!tbody) return;
 
-        const loadingRow = tbody.querySelector('tr td[colspan="6"]');
-        if (loadingRow) {
+        const existingRows = tbody.querySelectorAll('tr');
+        if (existingRows.length === 1 && existingRows[0].querySelector('td[colspan]')) {
             tbody.innerHTML = '';
         }
 
+        const existingRow = tbody.querySelector(`tr[data-claim-id="${claim.id}"]`);
+        if (existingRow) {
+            existingRow.innerHTML = getClaimRowHTML(claim);
+            return;
+        }
+        
         const row = document.createElement('tr');
         row.className = 'hover:bg-gray-50';
         row.setAttribute('data-claim-id', claim.id);
-        const formattedDate = claim.date ? new Date(claim.date).toLocaleDateString() : 'N/A'; 
-        row.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                ${claim.policyNumber || 'N/A'}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <div class="truncate max-w-xs">${claim.description || 'N/A'}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                £${claim.amount ? claim.amount.toFixed(0) : '0'}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                ${formattedDate}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <span class="status-badge px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                    Pending
-                </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <a href="#" class="view-claim text-blue-600 hover:text-blue-900" data-claim-id="${claim.id}">View</a>
-            </td>
-        `;
+        row.innerHTML = getClaimRowHTML(claim);
         
         const viewButton = row.querySelector('.view-claim');
         if (viewButton) {
@@ -170,15 +216,44 @@ document.addEventListener('DOMContentLoaded', function() {
                 showClaimDetails(claim);
             });
         }
-        
+
         tbody.prepend(row);
+        
+        function getClaimRowHTML(claim) {
+            const formattedDate = claim.date ? new Date(claim.date).toLocaleDateString() : 'N/A';
+            const statusInfo = StatusConfig[claim.status] || StatusConfig[ClaimStatus.PENDING];
+            const statusText = statusInfo.text;
+            const statusClass = statusInfo.class;
+            
+            return `
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    ${claim.policyNumber || 'N/A'}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div class="truncate max-w-xs">${claim.description || 'N/A'}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    £${claim.amount ? parseFloat(claim.amount).toFixed(0) : '0'}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${formattedDate}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="status-badge px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                        ${statusText}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <a href="#" class="view-claim text-blue-600 hover:text-blue-900" data-claim-id="${claim.id}">View</a>
+                </td>
+            `;
+        }
     }
 
-    function handleFormSubmit(e) {
+    async function handleFormSubmit(e) {
         e.preventDefault();
 
         const claimData = {
-            id: 'claim-' + Date.now(),
             policyNumber: policyNumberInput ? policyNumberInput.value.trim() : '',
             description: descriptionInput ? descriptionInput.value.trim() : '',
             date: claimDateInput ? claimDateInput.value : '',
@@ -192,8 +267,29 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        addClaimToTable(claimData);        
-        newClaimForm.reset();
-        newClaimModal.classList.add('hidden');
+        try {
+            const response = await fetch(`${API_BASE_URL}/claims`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(claimData)
+            });
+            
+            if (!response.ok) throw new Error('Failed to save claim');
+            
+            const savedClaim = await response.json();
+            addClaimToTable(savedClaim);
+            newClaimForm.reset();
+            newClaimModal.classList.add('hidden');
+            
+            const tbody = document.getElementById('claimsTableBody');
+            if (tbody && tbody.querySelector('td[colspan]')) {
+                loadClaims();
+            }
+        } catch (error) {
+            console.error('Error saving claim:', error);
+            alert('Failed to save claim. Please try again.');
+        }
     }
 });

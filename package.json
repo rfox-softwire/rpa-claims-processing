@@ -25,22 +25,29 @@
     "start": "npm-run-all --parallel start:claim start:email start:policy start:management",
     "dev": "npm-run-all --parallel dev:claim dev:email dev:policy dev:management"
   },
-  "keywords": ["rpa", "claims", "processing", "automation"],
+  "keywords": [
+    "rpa",
+    "claims",
+    "processing",
+    "automation"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^1.6.7",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
+    "csv-parse": "^5.5.0",
+    "csv-stringify": "^6.2.4",
     "express": "^4.18.2",
     "nodemon": "^3.1.0",
     "npm-run-all": "^4.1.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.1",
+    "@types/node": "^24.6.1",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.31",
-    "tailwindcss": "^3.3.5",
-    "@playwright/test": "^1.55.1",
-    "@types/node": "^24.6.1"
+    "tailwindcss": "^3.3.5"
   }
 }
